@@ -1,0 +1,71 @@
+@startuml
+!theme bluegray
+
+title Create Sysuser
+autonumber
+
+participant "Front" as F
+participant "Backend" as B
+database "DB" as DB
+
+F -> B: create sysuser
+note right F
+    params:
+    - name
+    - phone
+    - password
+    - roles
+end note
+
+B -> DB: get sysuser
+note right B
+    params:
+    - phone
+    - status: [active || blocked]
+end note
+
+DB -> B: return **sysuser**
+
+alt sysuser != null
+    B -> F: return ErrSysuserAlreadyExists
+end
+
+loop role over roles
+    B -> DB: check role exists
+    note right B
+        params:
+        - id: role.id
+        - status: active
+    end note
+    DB -> B: return **exist**
+    alt not exist
+        B -> F: return ErrRoleNotFound
+    end
+end loop
+
+B -> DB: add sysuser
+    note right B
+        params:
+        - id
+        - name
+        - status: active
+        - phone
+        - password: hash(req.password)
+    end note
+
+loop role over roles
+    B -> DB: add sysuser-roles
+        note right B
+            params:
+            - role_id
+            - sysuser_id
+        end note
+end loop
+
+B -> F: return
+note left B
+    params:
+    - id
+end note
+
+@enduml

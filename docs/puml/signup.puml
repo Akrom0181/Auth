@@ -1,0 +1,67 @@
+@startuml
+!theme bluegray
+
+title Signup
+autonumber
+
+participant "Front" as F
+participant "Backend" as B
+database "DB" as DB
+
+== Signup ==
+
+F -> B: signup
+    note right F
+        params:
+        - otp_confirmation_token
+        - email
+        - password
+        - name
+    end note
+
+B -> B: decode otp_confirmation_token
+    note right B
+        params:
+        - otp_id
+        - exp
+    end note
+
+alt now > exp
+    B -> F: return ErrOtpConfirmationTokenExpired
+end
+
+
+B -> DB: get otp
+    note right B
+        params:
+        - id: otpId
+        - email: req.email
+    end note
+
+DB -> B: return **otp**
+alt otp == null
+    B -> F: ErrUnavailableOtpConfirmationToken
+end
+
+B -> DB: get user
+    note right B
+        params:
+        - email
+        - status: active
+    end note
+DB -> B: return usr
+
+alt usr != null
+    B -> F: return ErrUserAlreadyExists
+end
+
+B -> DB: add user
+    note right B
+        params:
+        - id
+        - email
+        - name
+        - password: encrypt(req.password)
+        - status: active
+    end note
+@enduml

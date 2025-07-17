@@ -1,0 +1,18 @@
+@startuml
+!theme bluegray
+
+title Update role
+autonumber
+
+participant "Front" as F
+participant "Backend" as B
+database "DB" as DB
+
+B -> DB: update role
+    note right B
+        params:
+        - id
+        - name
+    end note
+
+@enduml

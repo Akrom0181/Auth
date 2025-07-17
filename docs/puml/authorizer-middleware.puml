@@ -1,0 +1,34 @@
+@startuml
+!theme bluegray
+
+title Authorizer middleware
+autonumber
+
+participant "Front" as F
+participant "Backend" as B
+database "DB" as DB
+
+F -> B:
+    note right F
+        params:
+        - Authorization: Bearer access_token
+    end note
+
+B -> B: extract token
+    note right B
+        params:
+        - user_id
+        - user_type
+        - exp
+    end note
+
+alt now > exp
+    B -> F: return ErrTokenExpired
+end
+
+alt **requested_endpoint** in [create-role, update-role, list-role, create-sysuser]
+    alt user_type != sysuser || user_id != ${SUPER_USER_ID}
+        B -> F: return ErrPermissionDenied
+    end
+end
+@enduml

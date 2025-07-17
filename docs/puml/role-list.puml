@@ -1,0 +1,26 @@
+@startuml
+!theme bluegray
+
+title Role list
+autonumber
+
+participant "Front" as F
+participant "Backend" as B
+database "DB" as DB
+
+F -> B: list role
+B -> DB: get all roles
+note right B
+        params:
+        - status: active
+    end note
+B -> F: return roles
+    note left B
+        params:
+        - id
+        - name
+        - created_at
+    end note
+
+@enduml
+9

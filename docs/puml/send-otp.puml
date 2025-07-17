@@ -1,0 +1,37 @@
+@startuml send-otp
+!theme bluegray
+
+title Send OTP
+autonumber
+
+participant "Front" as F
+participant "Backend" as B
+database "DB" as DB
+participant "Email server" as ES
+
+F -> B: send otp
+    note right F
+        params:
+        - email
+    end note
+
+B -> DB: add otp
+    note right B
+        params:
+        - id
+        - email
+        - code: [len:6]
+        - status: unconfirmed
+        - expires_at: [expiration:3m]
+    end note
+
+B -> ES: send email
+note right B
+    params:
+        - sender_email: [any type of email]
+        - receiver_email
+        - payload: "Your confirmation code: {otp}"
+end note
+
+B -> F: return otp_id
+@enduml

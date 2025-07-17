@@ -1,0 +1,46 @@
+@startuml confirm-otp
+!theme bluegray
+
+title Confirm OTP
+autonumber
+
+participant "Front" as F
+participant "Backend" as B
+database "DB" as DB
+
+F -> B: confirm otp
+    note right F
+        params:
+        - otp_id
+        - code
+    end note
+
+B -> DB: get otp
+    note right B
+        params:
+        - id
+        - status: unconfirmed
+    end note
+
+DB -> B: return **otp**
+
+alt otp.code != req.otp
+    B -> F: return ErrIncorrectOTP
+end
+
+B -> DB: update otp
+    note right B
+        params:
+        - status: confirmed
+    end note
+
+B -> B: create **otp_confirmation_jwt_token**
+    note right B
+        params:
+        - id
+        - exp
+    end note
+
+B -> F: return **otp_confirmation_token**
+
+@enduml

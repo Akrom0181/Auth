@@ -1,0 +1,12 @@
+Done 
+   -> send-otp✅
+   -> confirm-otp✅
+   -> signup✅
+   -> login✅
+   -> authorizer-middleware✅
+   -> role-list✅
+   -> create-role✅
+   -> update-role✅
+   -> create-sysuser✅
+
+Not Done    

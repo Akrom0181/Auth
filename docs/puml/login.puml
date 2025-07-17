@@ -1,0 +1,61 @@
+@startuml
+!theme bluegray
+
+title Login
+autonumber
+
+participant "Front" as F
+participant "Backend" as B
+database "DB" as DB
+
+F -> B: login
+    note right F
+        params:
+        - email
+        - password
+        - user_type: [sysuser, default:user]
+    end note
+
+alt user_type == sysuser
+    B -> DB: get sysuser
+        note right B
+            params:
+            - email
+        end note
+    DB -> B: return **sysuser**
+
+    alt !checkPassword(req.password, sysuser.password)
+        B -> F: return ErrInvalidCredentials
+    end
+
+|||
+|||
+
+else user_type == user
+    B -> DB: get user
+           note right B
+               params:
+               - email
+           end note
+       DB -> B: return **usr**
+
+    alt !checkPassword(req.password, usr.password)
+        B -> F: return ErrInvalidCredentials
+    end
+end
+
+B -> B: create access_token jwt
+    note right B
+        params:
+        - user_id
+        - user_type
+        - exp
+    end note
+
+B -> F: return
+    note right F
+        params:
+        - access_token
+    end note
+
+@enduml

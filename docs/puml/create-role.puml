@@ -1,0 +1,24 @@
+@startuml
+!theme bluegray
+
+title Create role
+autonumber
+
+participant "Front" as F
+participant "Backend" as B
+database "DB" as DB
+
+F -> B: create role
+    note right F
+        params:
+        - name
+    end note
+
+B -> DB: add role
+    note right B
+        params:
+        - name
+        - status: active
+    end note
+
+@enduml
