@@ -22,7 +22,7 @@ func (h *Handler) AuthorizerMiddleware() gin.HandlerFunc {
 		token := strings.TrimPrefix(authHeader, "Bearer ")
 		claims, err := jwt.ParseJWT(token, h.Config.JWTSecret)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token 1"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			return
 		}
 
@@ -39,16 +39,8 @@ func (h *Handler) AuthorizerMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		endpoint := c.FullPath()
-
-		restricted := map[string]bool{
-			"/roles/create":    true,
-			"/roles/update":    true,
-			"/roles/list":      true,
-			"/sysusers/create": true,
-		}
-
-		if restricted[endpoint] {
+		path := c.FullPath()
+		if strings.HasPrefix(path, "/role") || strings.HasPrefix(path, "/sysuser") {
 			if userType != "sysuser" || userID != SUPER_USER_ID {
 				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "permission denied"})
 				return
@@ -57,7 +49,6 @@ func (h *Handler) AuthorizerMiddleware() gin.HandlerFunc {
 
 		c.Set("user_id", userID)
 		c.Set("user_type", userType)
-
 		c.Next()
 	}
 }

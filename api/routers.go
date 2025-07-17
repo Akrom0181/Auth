@@ -27,23 +27,26 @@ func New(storage *storage.IStorage, log logger.ILogger, config config.Config) *g
 	// Swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Custom auth middleware
-	authMiddleware := h.AuthorizerMiddleware() // Casbin emas, faqat JWT tekshiradigan
+	// Auth middleware
+	authMiddleware := h.AuthorizerMiddleware()
+
+	// Public routes
+	r.POST("/auth/login", h.Login)
+	r.POST("/auth/send-otp", h.SendOTP)
+	r.POST("/auth/confirm-otp", h.ConfirmOTP)
+	r.POST("/auth/signup", h.Signup)
 
 	// Protected routes
 	protected := r.Group("/")
-
-	protected.POST("/auth/login", h.Login)
-	protected.POST("/auth/send-otp", h.SendOTP)
-	protected.POST("/auth/confirm-otp", h.ConfirmOTP)
-	protected.POST("/auth/signup", h.Signup)
 	protected.Use(authMiddleware)
 
+	// Role routes
 	protected.POST("/role", h.CreateRole)
 	protected.GET("/role/list", h.GetListRoles)
 	protected.GET("/role/:id", h.GetSingleRole)
 	protected.PUT("/role/:id", h.UpdateRole)
 
+	// Sysuser route
 	protected.POST("/sysuser", h.CreateSysuser)
 
 	return r
